@@ -1,7 +1,10 @@
 package it.ats.springboot.provaMySQL.user;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,66 +20,49 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class MainController {
 	
 	@Autowired
-	private UserRepository userRepository;
+	private UserService userService;
 	
 	@GetMapping("/user/{id}") 
 	public @ResponseBody User getUserById(@PathVariable Integer id) {
-		return userRepository.findById(id).orElse(null);
+		return userService.getById(id);
 	}
 	
 	@GetMapping("/user")
 	public @ResponseBody Iterable<User> getUserByName(@RequestParam String name){
-		return userRepository.findByName(name);
+		return userService.getByName(name);
 	}
 	
 	@GetMapping(path="/all")
 	public @ResponseBody Iterable<User> getAllUsers(){
-		return userRepository.findAll();
+		return userService.getAll();
 	}
-	
-//	@GetMapping(path="/add")
-//	public @ResponseBody String addNewUser(@RequestParam String name, @RequestParam String email) {
-//		
-//		User u = new User();
-//		u.setEmail(email);
-//		u.setName(name);
-//		userRepository.save(u);
-//		
-//		return "New user saved";
-//	}
 	
 	@PostMapping("/user")
 	public @ResponseBody String addNewUser(@RequestBody User newUser) {
-		userRepository.save(newUser);
-		return "New user saved";
+		if(userService.add(newUser)) {
+			return "New user saved";
+		}
+		
+		return "User already exists";
 	}
 	
 	@PostMapping("/users")
 	public @ResponseBody String addNewUsers(@RequestBody Iterable<User> newUsers) {
-		userRepository.saveAll(newUsers);
+		userService.add(newUsers);
 		return "New users saved";
 	}
 	
 	@PutMapping("/user")
 	public @ResponseBody String updateUser(@RequestParam Integer id, @RequestParam String name, @RequestParam String email) {
-		if (userRepository.existsById(id)) {
-			User user = userRepository.findById(id).orElse(null);
-			user.setName(name);
-			user.setEmail(email);
-			userRepository.save(user);
+		if (userService.update(id, name, email)){
 			return "User updated";
 		}
-
 		return "User doesn't exist";
 	}
 	
 	@PutMapping("/user/{id}")
 	public @ResponseBody String updateUser(@PathVariable Integer id, @RequestBody User updatedUser) {
-		if (userRepository.existsById(id)) {
-			User user = userRepository.findById(id).orElse(null);
-			user.setName(updatedUser.getName());
-			user.setEmail(updatedUser.getEmail());
-			userRepository.save(user);
+		if (userService.update(id, updatedUser)) {
 			return "User updated";
 		}
 
@@ -85,17 +71,17 @@ public class MainController {
 	
 	@DeleteMapping("/user/{id}")
 	public @ResponseBody String deleteUser(@PathVariable Integer id) {
-		if(userRepository.existsById(id)) {
-			userRepository.deleteById(id);
+		if(userService.delete(id)) {
 			return "User deleted";
 		}
-		
 		return "User doesn't exist";
 	}
 	
 	@DeleteMapping("/user")
 	public @ResponseBody String deleteByName(@RequestParam String name) {
-		userRepository.deleteByName(name);
-		return "User deleted";
+		if(userService.deleteByName(name)) {
+			return "User(s) deleted";
+		}
+		return "User(s) not found";
 	}
 }

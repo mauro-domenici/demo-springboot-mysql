@@ -14,6 +14,16 @@ public class User {
 	private String name;
 	private String email;
 	
+	public User() {
+		
+	}
+	
+	public User(Integer id, String name, String email) {
+		this.email = email;
+		this.name = name;
+		this.id = id;
+	}
+	
 	public Integer getId() {
 		return id;
 	}
@@ -33,6 +43,26 @@ public class User {
 		this.email = email;
 	}
 	
+	@Override
+	public String toString() {
+		String userInfo = "name: " + this.name + "\n";
+		userInfo += "email: " + this.email + "\n";
+		return userInfo;
+	}
 	
-
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) {
+			return true;
+		}
+		
+		if(!(obj instanceof User)) {
+			return false;
+		}
+		
+		User user = (User) obj;
+		
+		return user.getId() == this.id;
+		
+	}
 }
