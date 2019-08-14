@@ -2,6 +2,8 @@ package it.ats.springboot.provaMySQL.user;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/demo")
 public class MainController {
+
+	Logger logger = LoggerFactory.getLogger(MainController.class);
 	
 	@Autowired
 	private UserService userService;
@@ -40,9 +44,11 @@ public class MainController {
 	@PostMapping("/user")
 	public @ResponseBody String addNewUser(@RequestBody User newUser) {
 		if(userService.add(newUser)) {
+			logger.info("New user saved");
 			return "New user saved";
 		}
-		
+
+		logger.warn("User already exist");
 		return "User already exists";
 	}
 	
@@ -55,33 +61,44 @@ public class MainController {
 	@PutMapping("/user")
 	public @ResponseBody String updateUser(@RequestParam Integer id, @RequestParam String name, @RequestParam String email) {
 		if (userService.update(id, name, email)){
+			logger.info("User updated");
 			return "User updated";
 		}
+
+		logger.warn("User doesn't exist");
 		return "User doesn't exist";
 	}
 	
 	@PutMapping("/user/{id}")
 	public @ResponseBody String updateUser(@PathVariable Integer id, @RequestBody User updatedUser) {
 		if (userService.update(id, updatedUser)) {
+			logger.info("User updated");
 			return "User updated";
 		}
 
+		logger.warn("user doesn't exist");
 		return "User doesn't exist";
 	}
 	
 	@DeleteMapping("/user/{id}")
 	public @ResponseBody String deleteUser(@PathVariable Integer id) {
 		if(userService.delete(id)) {
+			logger.info("User deleted");
 			return "User deleted";
 		}
+
+		logger.warn("User doesn't exist");
 		return "User doesn't exist";
 	}
 	
 	@DeleteMapping("/user")
 	public @ResponseBody String deleteByName(@RequestParam String name) {
 		if(userService.deleteByName(name)) {
+			logger.info("User(s) deleted");
 			return "User(s) deleted";
 		}
+
+		logger.warn("User(s) not found");
 		return "User(s) not found";
 	}
 }
